@@ -1,0 +1,205 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/scroller/2.0.2/css/scroller.dataTables.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+</head>
+<body>
+    <!-- Begin Page Content -->
+    <div class="container-fluid">
+
+        <!-- Page Heading -->
+        <h1 class="h3 mb-2 text-gray-800">Tables</h1>
+        <p class="mb-4">
+            DataTables is a third party plugin that is used to generate the demo table below. For more information about DataTables, please visit the 
+            <a target="_blank" href="https://datatables.net">official DataTables documentation</a>
+        .</p>
+        <!-- DataTales Example -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">DataTables Example</h6>
+            </div>
+            <div class="card-body">
+            <div class="table-responsive">
+                <table id="dataTable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                    <th>Name</th>
+                    <th>Media</th>
+                    <th>Ready</th>                  
+                    <th>Button</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                    <th>Name</th>
+                    <th>Media</th>
+                    <th>Ready</th>                  
+                    <th>Button</th>
+                    </tr>
+                </tfoot>
+                </table>
+            </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- /.container-fluid -->
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+    <!-- Core plugin JavaScript-->
+    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+
+    <!-- Custom scripts for all pages-->
+
+    <!-- Page level plugins -->
+    <script src="/assets/js/sb-admin-2.min.js"></script>
+
+    <!-- Page level plugins -->
+    <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+    <!-- Page level custom scripts -->
+    <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+
+
+    <script type="text/javascript" language="javascript" class="init">
+        function startTimer(duration, display) {
+            var timer = duration, minutes, seconds;
+            setInterval(function () {
+                minutes = parseInt(timer / 60, 10)
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    timer = duration;
+                }
+            }, 1000);
+        }
+
+        $(document).ready(function() {
+            $('#dataTable').dataTable( {
+                "processing": true,
+                "server_side": true, 
+                "ajax": {
+                    "processing": true,
+                    "url": "{% url 'my_ajax_url' %}",
+                    "dataSrc": ""
+                },
+
+                "columns": [
+                        { "data": "fields.name" },
+                        { "data": "fields.media" },
+                        { "data": "fields.is_ready" ,                
+                        },
+
+                        { "data": "fields.is_processing",
+                        "fnCreatedCell": function (nTd, sData, oData, iRow, iCol){
+                    
+                        if (oData.fields['is_processing']) {
+                            $(nTd).html( '<a class="btn btn-primary" id="refresh"  name="id" '  + 'value=' +  $('<div/>').text(oData.pk).html() + '>'
+                                + "loading click to refresh" +
+                                '</a>')                            
+                        } 
+                        else if (oData.fields['is_ready']) {
+                            $(nTd).html( 
+                            // '<a class="btn btn-primary" target="_blank" name="id" ' + 'href=' +  oData.fields['download_url']  + '>' + "ready for download" + '</a>'
+                            '<a target="_blank" class="btn btn-primary" name="id"' + 'href=' + String($('<div/>').text(oData.fields['download_url']).html())  + '>'
+                             + "<==click to download" + '</a>'
+                             )
+                            }
+                        else {
+                            $(nTd).html( '<a id="click" class="btn btn-primary" name="id"' + 'value=' +  $('<div/>').text(oData.pk).html()  + '>'
+                             + "click to load" + '</a>')
+                        };
+
+                        }
+
+                        },
+                    ]
+            } );
+        } );
+    
+        $(document).on('click', '#click', function(e) {
+        
+            var btn = $(this)
+            btn.addClass('disabled')
+            console.log(btn.html('Loading '))
+            var span = document.createElement('span')
+            span.setAttribute('id', 'time')
+            btn.append(span)
+            var fiveMinutes = 60 * 5
+            startTimer(fiveMinutes, span);
+            e.preventDefault();
+            $.ajax({
+                type: "GET",
+                url: "{% url 'test' %}",
+                data: { 
+                    id: btn.attr('value'), // < note use of 'this' here
+                },
+                success: function(result) {
+                    btn.removeClass('disabled')
+                    btn.removeAttr('id')
+                    btn.attr('href', result['url'])
+                    btn.attr('target', '_blank')
+                    btn.text('open video')
+                    console.log(result)
+                    alert(result['sql'])
+                },
+                error: function(result) {
+                    alert('error');
+                    }
+                });
+        });
+
+        $(document).on('click', '#refresh', function(e) {
+        
+        var btn = $(this)
+        e.preventDefault();
+        $.ajax({
+            type: "GET",
+            url: "{% url 'processing' %}",
+            data: { 
+                id: btn.attr('value'), // < note use of 'this' here
+            },
+            success: function(result) {
+                if (result['is_ready']) {                        
+                    btn.removeClass('disabled')
+                    btn.removeAttr('id')
+                    btn.attr('href', result['url'])
+                    btn.attr('target', '_blank')
+                    btn.text('open image')
+                    console.log(result)
+                } else {
+                    btn.text('still loading')
+                    console.log(result)
+                }
+            },
+            error: function(result) {
+                alert('error');
+                }
+            });
+    });
+
+
+    </script>
+</body>
+</html>
