@@ -17,11 +17,28 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework import routers
+from converter.converter_viewsets import (AllMediaViewSet, ProcessedMediaViewSet,ProcessingMediaViewSet,
+                FailedMediaViewSet, WaitingMediaViewSet, UnavailableMediaViewSet)
+
+router = routers.DefaultRouter()
+# router.register(r'documents', DocumentViewSet)
+router.register(r'all_doc', AllMediaViewSet)
+router.register(r'done_doc', ProcessedMediaViewSet)
+router.register(r'failed_doc', FailedMediaViewSet)
+router.register(r'queued_doc', WaitingMediaViewSet)
+router.register(r'unavailable', UnavailableMediaViewSet)
+router.register(r'processing', ProcessingMediaViewSet)
 
 
 urlpatterns = [
+    path('api/v1/', include((router.urls, "api"), namespace="api")),
+    path('api/auth/', include('rest_framework.urls')),
+    
     path('admin/', admin.site.urls),
-    path('', include('demo.urls'))
+    
+    path('', include('demo.urls', namespace='demo')),
+    path('c/', include('converter.urls', namespace='converter'))
 ]
 
 if settings.DEBUG:

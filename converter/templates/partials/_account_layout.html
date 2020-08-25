@@ -1,0 +1,77 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+{% with has_stylesheet=True has_navbar=True has_footer=True has_javascript=True %}
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{% block title %} {% endblock title %} - Online Video Converter </title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="all,follow">
+
+    {% include 'partials/_stylesheets.html' %}
+
+  </head>
+
+  <body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+  
+      <!-- Sidebar -->
+      {% block sidebar%}
+      {% endblock sidebar %}
+      <!-- End of Sidebar -->
+  
+      <!-- Content Wrapper -->
+      <div id="content-wrapper" class="d-flex flex-column">
+  
+        <!-- Main Content -->
+        <div id="content">
+  
+          <!-- Topbar -->
+          {% block navbar %}
+          {% endblock navbar %}
+          <!-- End of Topbar -->
+  
+          <!-- Begin Page Content -->
+          {% block body %} 
+      
+          {% endblock body %}
+          <!-- /.container-fluid -->
+  
+        </div>
+        <!-- End of Main Content -->
+  
+        <!-- Footer -->
+        {% block footer %}
+        {% endblock footer %}
+        <!-- End of Footer -->
+  
+      </div>
+      <!-- End of Content Wrapper -->
+  
+    </div>
+    <!-- End of Page Wrapper -->
+  
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+      <i class="fas fa-angle-up"></i>
+    </a>
+  
+    <!-- Logout Modal-->
+    {% block logout %}
+    {% endblock logout %}
+  
+    <!-- Bootstrap core JavaScript-->
+    {% include "partials/_javascript.html" %}
+  
+  </body>
+</html>
+{% block scripts %} {% endblock scripts %}
+
+{% endwith %}

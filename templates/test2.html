@@ -101,7 +101,7 @@
                 "server_side": true, 
                 "ajax": {
                     "processing": true,
-                    "url": "{% url 'my_ajax_url' %}",
+                    "url": "{% url 'demo:my_ajax_url' %}",
                     "dataSrc": ""
                 },
 
@@ -151,7 +151,7 @@
             e.preventDefault();
             $.ajax({
                 type: "GET",
-                url: "{% url 'test' %}",
+                url: "{% url 'demo:test' %}",
                 data: { 
                     id: btn.attr('value'), // < note use of 'this' here
                 },
@@ -176,7 +176,7 @@
         e.preventDefault();
         $.ajax({
             type: "GET",
-            url: "{% url 'processing' %}",
+            url: "{% url 'demo:processing' %}",
             data: { 
                 id: btn.attr('value'), // < note use of 'this' here
             },

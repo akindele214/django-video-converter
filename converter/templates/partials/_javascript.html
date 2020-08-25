@@ -1,0 +1,261 @@
+{% load static %}
+
+<script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Core plugin JavaScript-->
+<script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+
+<!-- Custom scripts for all pages-->
+<script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+<!-- Core plugin JavaScript-->
+<script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+
+<!-- Custom scripts for all pages-->
+
+<!-- Page level plugins -->
+<script src="{% static 'vendor/chart.js/Chart.min.js' %}"></script>
+
+<!-- Page level custom scripts -->
+<script src="{% static 'js/demo/chart-bar-demo.js' %}"></script>
+<script src="/assets/js/sb-admin-2.min.js"></script>
+
+<!-- Page level plugins -->
+<script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+<!-- Page level custom scripts -->
+<script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+
+<script>
+  if ('{{tableID}}' == '#dataTable') {
+
+    function updateDataTableSelectAllCtrl(table){
+      var $table             = table.table().node();
+      var $chkbox_all        = $('tbody input[type="checkbox"]', $table);
+      var $chkbox_checked    = $('tbody input[type="checkbox"]:checked', $table);
+      var chkbox_select_all  = $('thead input[name="select_all"]', $table).get(0);
+
+      // If none of the checkboxes are checked
+      if($chkbox_checked.length === 0){
+          chkbox_select_all.checked = false;
+          if('indeterminate' in chkbox_select_all){
+            chkbox_select_all.indeterminate = false;
+          }
+
+      // If all of the checkboxes are checked
+      } else if ($chkbox_checked.length === $chkbox_all.length){
+          chkbox_select_all.checked = true;
+          if('indeterminate' in chkbox_select_all){
+            chkbox_select_all.indeterminate = false;
+          }
+
+      // If some of the checkboxes are checked
+      } else {
+          chkbox_select_all.checked = true;
+          if('indeterminate' in chkbox_select_all){
+            chkbox_select_all.indeterminate = true;
+          }
+      }
+    }
+
+
+     
+
+    $(document).ready(function () {
+      var rows_selected = [];
+      var table = $('#dataTable').DataTable({
+        
+        'select': {
+            'style': 'multi'
+        },
+        "pageLength": 100,
+        "serverSide": true,
+        "processing": true,
+        lengthMenu: [100, 200, 500, 1000, 5000],
+        ajax: {
+          url: "/api/v1/{{url}}/?format=datatables",
+        },
+
+        "columns": [
+          { 
+            "data":"id",
+            render: function (data, type, full, meta){
+            return '<input type="checkbox" name="id"' + 'value=' + $('<div/>').text(data).html() + '>';
+            console.log(data)
+            },
+            'searchable':false,
+            'orderable':false,
+            'className': 'dt-body-center',
+          },
+          {
+            "data": "name",
+            'orderable':false,
+            render: function (data, type, full, meta) {
+              return '<a ' + ' href=' + "/c/file/" + full['id'] + ' target="_blank" >' + data + '</a>'
+            }
+          },
+          {
+            "data": "status",
+            "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+              if (oData.status == 'done') {
+                $(nTd).html("<span class='badge badge-success'>" + oData.status.toUpperCase() + "</span>");
+              } else if (oData.status == 'waiting') {
+                $(nTd).html("<span class='badge badge-secondary'>" + oData.status.toUpperCase() + "</span>");
+              } else if (oData.status == 'error') {
+                $(nTd).html("<span class='badge badge-danger'>" + oData.status.toUpperCase() + "</span>");
+              } else if (oData.status == 'unavailable') {
+                $(nTd).html("<span class='badge badge-warning'>" + oData.status.toUpperCase().replace('_', ' ') + "</span>");
+              }
+
+            }
+          },
+          { "data": "media" },
+          { "data": "output" },
+          { "data": "updated_at" },
+        ],
+        'order': [0, 'asc'],
+        'rowCallback': function(row, data, dataIndex){
+         // Get row ID
+         var rowId = data[0];
+
+         // If row ID is in the list of selected row IDs
+         if($.inArray(rowId, rows_selected) !== -1){
+            $(row).find('input[type="checkbox"]').prop('checked', true);
+            $(row).addClass('selected');
+         }
+      }
+
+      });
+   
+      $('#dataTable tbody').on('click', 'input[type="checkbox"]', function(e){
+      var $row = $(this).closest('tr');
+
+      // Get row data
+      var data = table.row($row).data();
+
+      // Get row ID
+      var rowId = data['id'];
+      console.log(rowId)
+
+      // Determine whether row ID is in the list of selected row IDs 
+      var index = $.inArray(rowId, rows_selected);
+
+      // If checkbox is checked and row ID is not in list of selected row IDs
+      if(this.checked && index === -1){
+         rows_selected.push(rowId);
+
+      // Otherwise, if checkbox is not checked and row ID is in list of selected row IDs
+      } else if (!this.checked && index !== -1){
+         rows_selected.splice(index, 1);
+      }
+
+      if(this.checked){
+         $row.addClass('selected');
+      } else {
+         $row.removeClass('selected');
+      }
+
+      // Update state of "Select all" control
+      updateDataTableSelectAllCtrl(table);
+
+      // Prevent click event from propagating to parent
+      e.stopPropagation();
+   });
+
+   // Handle click on table cells with checkboxes
+   $('#dataTable').on('click', 'tbody td, thead th:first-child', function(e){
+      $(this).parent().find('input[type="checkbox"]').trigger('click');
+   });
+
+   // Handle click on "Select all" control
+   $('thead input[name="select_all"]', table.table().container()).on('click', function(e){
+      if(this.checked){
+         $('#dataTable tbody input[type="checkbox"]:not(:checked)').trigger('click');
+      } else {
+         $('#dataTable tbody input[type="checkbox"]:checked').trigger('click');
+      }
+
+      // Prevent click event from propagating to parent
+      e.stopPropagation();
+   });
+
+   // Handle table draw event
+   table.on('draw', function(){
+      // Update state of "Select all" control
+      updateDataTableSelectAllCtrl(table);
+   });
+   
+      // Handle form submission event 
+      $('#frm-example').on('submit', function(e){
+      var form = this;
+      var btn = document.getElementById('submit-btn')
+      var spinner = document.getElementById("spinner")
+      // Iterate over all selected checkboxes
+      $.each(rows_selected, function(index, rowId){
+         // Create a hidden element 
+         $(form).append(
+             $('<input>')
+                .attr('type', 'hidden')
+                .attr('name', 'id[]')
+                .val(rowId)
+         );
+      });
+  
+      // Output form data to a console     
+      $('#example-console').text($(form).serialize());
+       console.log($(form).serialize())
+      // Remove added elements
+      $('input[name="id\[\]"]', form).remove();
+       
+      // Prevent actual form submission during testing
+      e.preventDefault();
+      btn.disabled = true
+      spinner.style.display = 'inline-block'
+      // console.log(spinner.style)
+      $.ajax({
+       type : "POST", 
+       url: "/", 
+       data:  $(form).serialize(),
+       
+       success: function(data){
+          console.log(data)
+          btn.disabled = false
+          spinner.style.display = 'none'
+          $('#dataTable tbody input[type="checkbox"]:checked').trigger('click');
+       },
+
+       failure: function() {
+           
+       }
+
+
+   });
+  
+   });
+
+    });
+
+  } else if ('{{tableID}}' == '#failedTable') {
+    $(document).ready(function () {
+      $('#failedTable').DataTable({
+        lengthMenu: [5, 20, 50, 100, 500],
+        processing: true,
+        ajax: {
+          processing: true,
+          url: "{% url 'converter:error' %}",
+        },
+        "columns": [
+          {
+            "data": "path",
+            "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+              $(nTd).html("<a target='_blank' href=" + oData.full_path + '">' + sData + '</a>"');
+            }
+          }
+        ]
+      });
+    });
+  }
+
+</script>

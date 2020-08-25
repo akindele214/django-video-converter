@@ -1,0 +1,91 @@
+<script>
+    // $.ajax({
+    //   url: "{% url 'converter:analysis' %}",
+    //     contentType: 'application/json; charset=utf-8',
+    //     success: function(result) {
+    //       // document.getElementById('month').innerText ="(" + result.month + ")"
+    //     }
+    
+    // })    
+
+    Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+    Chart.defaults.global.defaultFontColor = '#858796';
+
+
+    $.ajax({
+      url: "{% url 'converter:status' %}",
+      contentType: 'application/json; charset=utf-8',
+      success: function(result) {
+          var response = result
+          console.log(response)
+  
+      // Pie Chart Example
+      var ctx = document.getElementById("myPieChart");
+      var myPieChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ["Done", "Queued", "Processing"],
+        datasets: [{
+          data: [response.done, response.queued_files, response.processing],
+          backgroundColor: ['#1cc88a','#3dc4da', '#6c757d'],
+          hoverBackgroundColor: ['#17a673','#17a2b8', '#808c96'],
+          hoverBorderColor: "rgba(234, 236, 244, 1)",
+        }],
+      },
+      options: {
+        maintainAspectRatio: false,
+        tooltips: {
+          backgroundColor: "rgb(255,255,255)",
+          bodyFontColor: "#858796",
+          borderColor: '#dddfeb',
+          borderWidth: 1,
+          xPadding: 15,
+          yPadding: 15,
+          displayColors: false,
+          caretPadding: 10,
+        },
+        legend: {
+          display: false
+        },
+        cutoutPercentage: 80,
+      },
+  
+    });
+    
+    function addData(chart, datasetIndex, url) {
+      var err = $('#errored_files')
+      var succ = $('#successful_files')
+      var unavai = $('#unavailable')
+      var all = $('#all')
+    $.ajax({
+      url: url,
+      contentType: 'application/json; charset=utf-8',
+      success: function(result) {
+        var response = [result.done, result.queued_files, result.processing]
+        chart.data.datasets[datasetIndex].data = response;
+        chart.update();
+         err.text(result.failed_files)
+         succ.text(result.done)
+         unavai.text(result.unavailable)
+         all.text(result.all_files)
+      }
+
+    })
+    }
+
+    setInterval(function() {
+    addData(myPieChart, 0, "{% url 'converter:status' %}");
+    }, 7000);
+
+
+
+    }
+    
+    });
+    
+    // loadFileCount(5);
+    // setInterval(function(){
+    // loadFileCount()
+    // }, 5)
+    
+</script> 

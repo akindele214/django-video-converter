@@ -1,0 +1,65 @@
+{% extends "partials/base.html" %}
+{% load static %}
+
+{% load markdownify %}
+
+{% block title %} Document Detail {% endblock title %}
+
+{% block body %}
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">Add Media</h1>
+    <form  method="POST" action="" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="card">
+            <div class="card-body">
+                <div class="form-group row">
+                    <label for="media" class="col-sm-2 col-form-label">Media</label>
+                        <div class="custom-file" style="width: 44%;">
+                        {{form.media}}
+                        <label class="custom-file-label" for="media" data-browse="Add Media">
+                        </label>
+                        </div>
+                </div>
+                <fieldset class="form-group">
+                    <div class="row">
+                    <legend class="col-form-label col-sm-2 pt-0">Input Ext.</legend>
+                    <div class="col-sm-10">
+                        {{form.input_ext}}
+                    </div>
+                    </div>
+                </fieldset>
+                <fieldset class="form-group">
+                    <div class="row">
+                    <legend class="col-form-label col-sm-2 pt-0">Output Ext.</legend>
+                    <div class="col-sm-10">
+                        {{form.output_ext}}
+                    </div>
+                    </div>
+                </fieldset>            
+                <button class="btn btn-lg btn-outline-primary">Proceed</button>
+            </div>
+            
+        </div>
+    </form>
+</div>
+{% endblock body %}
+{% block scripts %}
+<script>
+    document.querySelector('.custom-file-input').addEventListener('change',function(e){
+      console.log(555)
+    var element = document.getElementById("id_media").files
+    if (element.length > 1) {
+        var fileName = document.getElementById("id_media").files[0].name;
+        var nextSibling = e.target.nextElementSibling
+        nextSibling.innerText = element.length + " media selected"
+    } else {
+        var fileName = document.getElementById("id_media").files[0].name;
+        var nextSibling = e.target.nextElementSibling
+        nextSibling.innerText = fileName            
+    }
+
+    })
+</script>
+{% endblock %}

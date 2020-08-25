@@ -1,0 +1,197 @@
+{% extends "partials/base.html" %}
+{% load static %}
+
+{% load markdownify %}
+
+{% block title %} Media Detail {% endblock title %}
+
+{% block body %}
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">Media Detail - {{media.name}}</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="form-group row">
+                <label for="name" class="col-sm-2 col-form-label">Name</label>
+                <div class="col-sm-10">
+                <input type="text" value="{{media.name}}" class="form-control" id="name" disabled> 
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputPassword3" class="col-sm-2 col-form-label">Uploaded Extension</label>
+                <div class="col-sm-10">
+                <input type="text" value="{{media.uploaded_extension}}" class="form-control" id="media_type" disabled>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="output_extension" class="col-sm-2 col-form-label">Output Extension</label>
+                <div class="col-sm-10">
+                <input type="text" value="{{media.output_extension}}" class="form-control" id="output_extension" disabled>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="status" class="col-sm-2 col-form-label">Status</label>
+                <div class="col-sm-10">
+                <input type="text" value="{{media.get_status}}" class="form-control" id="status" disabled>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="created_at" class="col-sm-2 col-form-label">Created at</label>
+                <div class="col-sm-10">
+                <input type="text" value="{{media.created_at}}" class="form-control" id="created_at" disabled>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="updated_at" class="col-sm-2 col-form-label">Updated at</label>
+                <div class="col-sm-10">
+                <input type="text" value="{{media.created_at}}" class="form-control" id="updated_at" disabled>
+                </div>
+            </div>
+            <fieldset class="form mb-2" >
+                <div class="row">
+                <legend class="col-form-label col-sm-2 pt-0">Download URL</legend>
+                {% if media.output %}
+                    <a href="{{media.output}}" target="_blank" id="download_url">Click to download</a>    
+                {% else %}
+                    <a href="#" class="text-muted pl-2" target="_blank" id="download_url">Output file unavailable</a>
+                {% endif %} 
+                </div>
+            </fieldset>           
+            <hr class="sidebar-divider">
+ 
+            <form action="" method="POST" id="convert_form">
+                {%csrf_token%}
+                {{form.pk}}
+                <fieldset class="form mb-2" >
+                    <div class="row">
+                    <legend class="col-form-label col-sm-2 pt-0">Convert File</legend>
+                    {% for value, name in form.fields.quality_type.choices %}
+                        <div class="custom-control custom-radio ml-2">
+                        <input id="{{ name }}" name="quality_type" value="{{ value }}" type="radio" class="custom-control-input" required>
+                        <label class="custom-control-label" for="{{ name }}">{{ name }}</label>
+                        </div>                
+                    {% endfor %}
+                    </div>
+                </fieldset>
+                <fieldset class="form-group">
+                    <div class="row">
+                    <legend class="col-form-label col-sm-2 pt-0">Output Ext.</legend>
+                    <div class="col-sm-10">
+                        {{form.output_ext}}
+                    </div>
+                    </div>
+                </fieldset>  
+                <div id="button_div">
+                    <button type="submit" id="submit_button" class="btn btn-group btn-outline-primary">Reconvert</button>
+                </div>            
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock body %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function(){
+            var media_type = $('#media_type')
+            var select = $('#id_output_ext')
+            if (media_type.val() == '.mp3') {
+                console.log('removed')
+                $("#id_output_ext option[value='.mp4']").remove();
+                $("#id_output_ext option[value='.ts']").remove();
+                $("#id_output_ext option[value='.mkv']").remove();
+                $("#id_output_ext option[value='.flv']").remove();
+            }
+        })
+
+        $(document).on('submit', '#convert_form', function(e) {
+            
+            var form_data = $(this)
+            var submit_btn =$("#submit_button")
+            submit_btn.addClass("d-none")
+            var button_div = $("#button_div")
+            var download_btn = $("#download_url")
+            download_btn.addClass('disabled')
+            download_btn.text('Converting')
+            var spinner = $('<div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"> <span class="sr-only">Loading...</span></div> <a class="text-muted">Converting</a>')
+            button_div.append(spinner)
+            // submit_btn.addcl
+            // var span = document.createElement('span')
+            // span.setAttribute('id', 'time')
+            // btn.append(span)
+            // var fiveMinutes = 60 * 5
+            // startTimer(fiveMinutes, span);
+            e.preventDefault();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'converter:start_convert' media.pk %}",
+                data: form_data.serialize(),
+                success: function(result) {
+                    if (result['response'] ==  'done') {
+                        submit_btn.removeClass("d-none")
+                        button_div.empty()
+                        button_div.append(submit_btn)
+                        download_btn.attr('href', result['url'])
+                        download_btn.text('Click to download output')  
+                    } else if(result['response'] ==  'error') {
+                        submit_btn.removeClass("d-none")
+                        button_div.empty()
+                        button_div.append(submit_btn)
+                        submit_btn.addClass('disabled')
+                        submit_btn.attr('disabled', 'disabled')
+                        download_btn.removeAttr('href')
+                        // download_btn.attr('href', result['url'])
+                        download_btn.text('File couldnt be converted please try another file')                        
+                    } else if (result['response'] ==  'unavailable'){
+                        submit_btn.removeClass("d-none")
+                        button_div.empty()
+                        button_div.append(submit_btn)
+                        submit_btn.addClass('disabled')
+                        submit_btn.attr('disabled', 'disabled')
+                        download_btn.removeAttr('href')
+                        // download_btn.attr('href', result['url'])
+                        download_btn.text('File was not found will be deleted soon')   
+                        var stat = $('#status')
+                        stat.val('Unavailable')                        
+                    }
+                },
+                error: function(result) {
+                    alert('error');
+                    }
+                });
+        });
+
+        $(document).on('click', '#refresh', function(e) {
+        
+        var btn = $(this)
+        e.preventDefault();
+        $.ajax({
+            type: "GET",
+            url: "{% url 'demo:processing' %}",
+            data: { 
+                id: btn.attr('value'), // < note use of 'this' here
+            },
+            success: function(result) {
+                if (result['is_ready']) {                        
+                    btn.removeClass('disabled')
+                    btn.removeAttr('id')
+                    btn.attr('href', result['url'])
+                    btn.attr('target', '_blank')
+                    btn.text('open image')
+                    console.log(result)
+                } else {
+                    btn.text('still loading')
+                    console.log(result)
+                }
+            },
+            error: function(result) {
+                alert('error');
+                }
+            });
+    });
+   
+   </script>
+{% endblock scripts %}

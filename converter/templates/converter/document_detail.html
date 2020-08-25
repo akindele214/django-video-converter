@@ -1,0 +1,94 @@
+{% extends "partials/base.html" %}
+{% load static %}
+
+{% load markdownify %}
+
+{% block title %} Document Detail {% endblock title %}
+
+{% block body %}
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">Document Detail - {{document}}</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="form-group row">
+                <label for="inputEmail3" class="col-sm-2 col-form-label">ID</label>
+                <div class="col-sm-10">
+                <input type="text" value="{{document.id}}" class="form-control" id="inputEmail3" disabled> 
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputPassword3" class="col-sm-2 col-form-label">Title</label>
+                <div class="col-sm-10">
+                <input type="text" value="{{document.title}}" class="form-control" id="inputPassword3" disabled>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputPassword3" class="col-sm-2 col-form-label">Mobile</label>
+                <div class="col-sm-10">
+                <input type="text" value="{{document.partial_mobile_number}}" class="form-control" id="inputPassword3" disabled>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputPassword3" class="col-sm-2 col-form-label">Path</label>
+                <div class="col-sm-10">
+                <input type="text" value="{{document.path}}" class="form-control" id="inputPassword3" disabled>
+                </div>
+            </div>
+            <fieldset class="form-group">
+                <div class="row">
+                <legend class="col-form-label col-sm-2 pt-0">Status</legend>
+                <div class="col-sm-10">
+                    <div class="form-check">
+                    <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="option1" disabled
+                     
+                     {% if document.status == 'done' %}
+                        checked
+                     {% endif %}
+                     >
+                    <label class="form-check-label" for="gridRadios1">
+                        Done
+                    </label>
+                    </div>
+                    <div class="form-check">
+                    <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios2" value="option2" disabled
+                        {% if document.status == 'waiting' %}
+                            checked
+                        {% endif %}
+                    >
+                    <label class="form-check-label" for="gridRadios2">
+                        Waiting
+                    </label>
+                    </div>
+                    <div class="form-check disabled">
+                    <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios3" value="option3" disabled
+                        {% if document.status == 'error' %}
+                            checked
+                        {% endif %}
+                    >
+                    <label class="form-check-label" for="gridRadios3">
+                        Error
+                    </label>
+                    </div>
+                </div>
+                </div>
+            </fieldset>
+            <div class="form-group row">
+                <label for="inputPassword3" class="col-sm-2 col-form-label">Created at</label>
+                <div class="col-sm-10">
+                <input type="text" value="{{document.created_at}}" class="form-control" id="inputPassword3" disabled>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputPassword3" class="col-sm-2 col-form-label">Updated at</label>
+                <div class="col-sm-10">
+                <input type="text" value="{{document.created_at}}" class="form-control" id="inputPassword3" disabled>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock body %}

@@ -1,0 +1,46 @@
+{% load static %}
+
+
+{% if tableID == '#dataTable' %}
+<form  id="frm-example" method="POST" action="">
+    {%csrf_token%}
+    <div class="card-body">
+        <div class="table-responsive">
+        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+            <thead>
+            <tr>
+                <th><input name="select_all" value="1" type="checkbox"></th>                
+                <th>Name</th>
+                <th>Status</th>
+                <th>Path</th>
+                <th>Download URL</th>
+                <th>Updated Date</th>
+            </tr>
+            </thead>
+        </table>
+        </div>
+    </div>
+    
+    <!-- <p>
+        <button id="submit-btn" class="btn btn-outline-success ml-4">
+        <span class="spinner-border spinner-border-sm mt-2" style="display: none;" id="spinner" role="status" aria-hidden="true"></span>
+        Send SMS
+        </button>
+    </p> -->
+    
+</form>
+{% elif tableID == '#failedTable' %}
+
+    <div class="card-body">
+        <div class="table-responsive">
+        <table class="table table-bordered" id="failedTable" width="100%" cellspacing="0">
+            <thead>
+            <tr>
+                <th>Path</th>
+            </tr>
+            </thead>
+        </table>
+        </div>
+    </div>
+
+{% endif %}

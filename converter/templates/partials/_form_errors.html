@@ -1,0 +1,15 @@
+{% if form.errors %}
+<div class="alert alert-dismissable alert-danger" role="alert">
+  {% for field in form %}
+    {% for error in field.errors %}
+    <span class="text-sm"><i class="fa fa-times"></i>&nbsp;&nbsp;{{ field.label }}: {{ error|escape }}</span><br>
+    {% endfor %}
+  {% endfor %}
+
+  {% for error in form.non_field_errors %}
+  <i class="text-sm">{{ error|escape }}</i><br>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% csrf_token %}
