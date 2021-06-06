@@ -90,3 +90,6 @@ __MACOSX/
 # ignore admin staticfiles
 admin/
 btndom/media/*
+
+# Others
+.templates/

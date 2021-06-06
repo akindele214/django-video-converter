@@ -224,7 +224,7 @@ def convert(request, pk):
                 os.remove(mp4path)
 
             obj.status = 'processing'
-            if ext == ".mp4" or ext == ".ts" or ext == ".mkv" or ext == ".flv":
+            if ext in [".mp4", ".ts",".mkv" , ".flv"]:
                 
                 os.system("ffmpeg -y -i " + "\"" + filePath + "\""  + " \"" + mp4path + "\"")
                 # print(response , 223)
@@ -232,7 +232,7 @@ def convert(request, pk):
                 # arch = os.system("ffmpeg -y -i " + "\"" + filePath + "\""  + " \"" + mp4path + "\"", shell=True)                
                 # arch = subprocess.check_output(cmd, shell=True)                
                 # print(arch)
-            elif ext == '.mp3' or ext =='.m4a':
+            elif ext in ['.mp3', '.m4a']:
                 # cmd = f"ffmpeg -y -i \"{filePath}\" -vn -acodec copy \"{mp4path}\""
                 cmd = f"ffmpeg -y -i \"{filePath}\" \"{mp4path}\""
                 os.system(cmd)
