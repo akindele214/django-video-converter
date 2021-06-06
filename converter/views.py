@@ -173,7 +173,6 @@ class AddFileView(View):
         if form.is_valid():
             data = form.cleaned_data
             media = data['media']
-            print(dir(media))
             name = media.name.split('.')
             input_ext = data['input_ext']
             output_ext = data['output_ext']
@@ -195,7 +194,7 @@ class FileDetailView(View):
         if media.output:
             output_url = media.output
             dirr = settings.BASE_DIR.replace('\\', '/') + "/btndom"
-            print(dirr+output_url)
+            print(dirr+output_url, "directory")
         form = ReconvertForm(initial={
             'output_ext': media.output_extension,
             'pk': pk
@@ -208,7 +207,6 @@ class FileDetailView(View):
 
 def convert(request, pk):
     if request.is_ajax():
-        print(request.POST)
         pk = request.POST.get('pk')
         ext = request.POST.get('output_ext')
         obj = ConverterModel.objects.get(pk=int(pk))
@@ -219,19 +217,16 @@ def convert(request, pk):
         mp4path = os.path.join(os.path.splitext(filePath)[0] + ext)
 
         if os.path.exists(os.path.join(os.path.splitext(filePath)[0] + obj.uploaded_extension)):
-            print("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
             if os.path.exists(mp4path):
                 os.remove(mp4path)
 
             obj.status = 'processing'
             if ext in [".mp4", ".ts",".mkv" , ".flv"]:
                 
-                os.system("ffmpeg -y -i " + "\"" + filePath + "\""  + " \"" + mp4path + "\"")
-                # print(response , 223)
+                os.system("ffmpeg -y -i " + "\"" + filePath + "\""  + " \"" + mp4path + "\"")                
                 # cmd = f"ffmpeg -y -i \"{filePath}\" \"{mp4path}\""
                 # arch = os.system("ffmpeg -y -i " + "\"" + filePath + "\""  + " \"" + mp4path + "\"", shell=True)                
-                # arch = subprocess.check_output(cmd, shell=True)                
-                # print(arch)
+                # arch = subprocess.check_output(cmd, shell=True)                                
             elif ext in ['.mp3', '.m4a']:
                 # cmd = f"ffmpeg -y -i \"{filePath}\" -vn -acodec copy \"{mp4path}\""
                 cmd = f"ffmpeg -y -i \"{filePath}\" \"{mp4path}\""
@@ -240,7 +235,6 @@ def convert(request, pk):
             final_path = mp4path.split("\\")[-3:]
             if os.path.exists(mp4path):
                 print('done')
-
                 string = "/"
                 for f in final_path:
                     string += f +"/"
